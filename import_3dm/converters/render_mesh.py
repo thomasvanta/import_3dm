@@ -61,6 +61,7 @@ def import_render_mesh(context, ob, name, scale, options):
     faces = []
     vertices = []
     coords = []
+    colors = []
 
     # now add all faces and vertices to the main lists
     for m in msh:
@@ -78,6 +79,8 @@ def import_render_mesh(context, ob, name, scale, options):
         fidx = fidx + len(m.Vertices)
         vertices.extend([(m.Vertices[v].X * scale, m.Vertices[v].Y * scale, m.Vertices[v].Z * scale) for v in range(len(m.Vertices))])
         coords.extend([(m.TextureCoordinates[v].X, m.TextureCoordinates[v].Y) for v in range(len(m.TextureCoordinates))])
+        if len(m.VertexColors) > 0:
+            colors.extend([(m.VertexColors[v][0] / 255., m.VertexColors[v][1] / 255., m.VertexColors[v][2] / 255., m.VertexColors[v][3] / 255.) for v in range(len(m.VertexColors))])
    
     mesh = context.blend_data.meshes.new(name=name)
     mesh.from_pydata(vertices, [], faces)
@@ -106,6 +109,13 @@ def import_render_mesh(context, ob, name, scale, options):
             mesh.uv_layers.remove(mesh.uv_layers["RhinoUVMap"])
 
 
+    # if it has vertex colors, add them
+    if len(colors) > 0:
+        vcol_layer = mesh.vertex_colors.new()
+        for poly in mesh.polygons:
+            for loop_index in poly.loop_indices:
+                loop_vert_index = mesh.loops[loop_index].vertex_index
+                vcol_layer.data[loop_index].color = colors[loop_vert_index]
 
     # done, now add object to blender
 

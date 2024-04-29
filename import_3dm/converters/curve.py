@@ -65,7 +65,7 @@ def import_polyline(rcurve, bcurve, scale):
 
     return polyline
 
-CONVERT[r3d.PolylineCurve] = import_polyline
+#CONVERT[r3d.PolylineCurve] = import_polyline
 
 def import_nurbs_curve(rcurve, bcurve, scale):
 
@@ -89,22 +89,22 @@ CONVERT[r3d.NurbsCurve] = import_nurbs_curve
 
 def import_bezier(rcurve, bcurve, scale):
 
-    N = len(rcurve.Points)
+    N = rcurve.PointCount
 
     bezier = bcurve.splines.new('BEZIER')
     bezier.bezier_points.add(N - 1)
 
     for i in range(0, N):
-        fr = rcurve.Points[i]
-        point = (fr.X * scale, fr.Y * scale, fr.Z * scale, 1)
-        bezier.bezier_points[i].co = point
-        bezier.handle_left = point
-        bezier.handle_right = point
+        fr = rcurve.Point(i)
+        pointPos = (fr.X * scale, fr.Y * scale, fr.Z * scale)
+        bezier.bezier_points[i].co = pointPos
+        bezier.bezier_points[i].handle_left = pointPos
+        bezier.bezier_points[i].handle_right = pointPos
 
     return bezier
 
 #ToDo: check if 3dm has bezier
-#CONVERT[r3d.LineCurve] = import_bezier
+CONVERT[r3d.PolylineCurve] = import_bezier
 
 def import_arc(rcurve, bcurve, scale):
 

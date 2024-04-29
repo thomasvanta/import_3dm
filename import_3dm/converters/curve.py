@@ -87,6 +87,25 @@ def import_nurbs_curve(rcurve, bcurve, scale):
 
 CONVERT[r3d.NurbsCurve] = import_nurbs_curve
 
+def import_bezier(rcurve, bcurve, scale):
+
+    N = len(rcurve.Points)
+
+    bezier = bcurve.splines.new('BEZIER')
+    bezier.bezier_points.add(N - 1)
+
+    for i in range(0, N):
+        fr = rcurve.Points[i]
+        point = (fr.X * scale, fr.Y * scale, fr.Z * scale, 1)
+        bezier.bezier_points[i].co = point
+        bezier.handle_left = point
+        bezier.handle_right = point
+
+    return bezier
+
+#ToDo: check if 3dm has bezier
+#CONVERT[r3d.LineCurve] = import_bezier
+
 def import_arc(rcurve, bcurve, scale):
 
     spt = Vector((rcurve.Arc.StartPoint.X, rcurve.Arc.StartPoint.Y, rcurve.Arc.StartPoint.Z)) * scale
